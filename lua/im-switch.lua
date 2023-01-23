@@ -64,6 +64,17 @@ local function auto_switch_im(mode)
   end
 end
 
+local function in_auto_switch_im()
+    local ft = vim.bo.filetype
+    if ft == "markdown" then
+      auto_switch_im("in")
+    end
+end
+
+local function out_auto_switch_im()
+    auto_switch_im("out")
+end
+
 -- 在相应的时机自动进行函数调用
 -- vim自动命令参考：http://yyq123.github.io/learn-vim/learn-vi-49-01-autocmd.html
 -- 查看当前文档类型
@@ -72,32 +83,31 @@ end
 vim.api.nvim_create_augroup("user_im_switch", { clear = true })
 vim.api.nvim_create_autocmd(
   { "InsertLeave" },
-  { group = "user_im_switch", pattern = "*", callback = function()
-    auto_switch_im("out")
-  end}
+  { group = "user_im_switch", pattern = "*", callback = out_auto_switch_im }
 )
 vim.api.nvim_create_autocmd(
   { "InsertEnter" },
   -- 仅对指定类型的文件进行中文重置
-  { group = "user_im_switch", pattern = "*", callback = function()
-    local ft = vim.bo.filetype
-    if ft == "markdown" then
-      auto_switch_im("in")
-    end
-  end}
+  { group = "user_im_switch", pattern = "*", callback = in_auto_switch_im }
 )
+-- 进入select模式的自动命令
+vim.api.nvim_create_autocmd(
+  { "ModeChanged" },
+  { group = "user_im_switch", pattern = "*:[sS]*", callback = in_auto_switch_im }
+)
+
 -- windows切换输入法成本较高，降低切换频率
 if utils.os_name ~= "win" then
   vim.api.nvim_create_autocmd(
     { "BufCreate" },
-    { group = "user_im_switch", pattern = "*", callback = function() auto_switch_im("out") end }
+    { group = "user_im_switch", pattern = "*", callback = out_auto_switch_im }
   )
   vim.api.nvim_create_autocmd(
     { "BufEnter" },
-    { group = "user_im_switch", pattern = "*", callback = function() auto_switch_im("out") end }
+    { group = "user_im_switch", pattern = "*", callback = out_auto_switch_im }
   )
   vim.api.nvim_create_autocmd(
     { "BufLeave" },
-    { group = "user_im_switch", pattern = "*", callback = function() auto_switch_im("out") end }
+    { group = "user_im_switch", pattern = "*", callback = out_auto_switch_im }
   )
 end
