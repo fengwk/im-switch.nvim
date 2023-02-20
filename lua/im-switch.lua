@@ -95,6 +95,11 @@ vim.api.nvim_create_autocmd(
   { "ModeChanged" },
   { group = "user_im_switch", pattern = "*:[sS]*", callback = in_auto_switch_im }
 )
+-- 离开命令行模式后自动切换
+vim.api.nvim_create_autocmd(
+  { "ModeChanged" },
+  { group = "user_im_switch", pattern = "c:*", callback = out_auto_switch_im }
+)
 
 -- windows切换输入法成本较高，降低切换频率
 if utils.os_name ~= "win" then
